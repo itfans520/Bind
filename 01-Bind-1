@@ -1,0 +1,28 @@
+# bind 服务的名称： named
+
+#安装bind
+yum install -y bind bind-chroot bind-utils
+
+# DNS 默认使用tcp、udp协议，使用端口号为53（domain），953（mdc）
+
+# Bind 配置文件保存在练歌位置，分别是：
+/etc/named.conf	-Bind服务主配置文件
+/var/named/		-zone文件
+
+# 如果安装了bind-chroot,Bind会被封装到一个伪根目录内，配置文件的位置变为：
+/var/named/chroot/etc/named.conf	-Bind服务主配置文件
+/var/named/chroot/var/named/		-zone文件
+
+chroot是通过将相关文件封装到一个伪根目录内，以达到安全防护的目的，一旦该程序被攻破破，将只能访问伪根目录内的内容，
+而不是真实的根目录。
+
+# 不同于其它服务器，Bind在安装后不会有预置的配置文件，但是在bind的文档文件夹内（/usr/share/doc/bind-x.x.x）,
+bind 提供了配置文件的模板，可以通过直接拷贝再修改的方法进行使用，如：
+cp -rv /usr/share/doc/bind.x.x.x、sample/etc/* /var/named/chroot/etc/named
+cp -rv /usr/share/doc/bind.x.x.x、sample/var/* /var/named/chroot/etc/var
+
+示例中的主配置文件内容较多，可以删除不需要的内容，最小化可用配置，如：
+options{
+	listion-on port 53{127.0.0.1;};
+	directory "/var/named";
+};
