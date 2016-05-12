@@ -1,0 +1,43 @@
+### 域主服务器
+一个域的主服务器（master）是这个域的信息的权威服务器，所有这个域的信息都是由域的主服务器控制，
+配置一个鱼的主服务器需要一下几个步骤：
+（1）在bind的住配置文件中添加该域的定义；
+（2）在/var/named/chroot/var/named中创建该域的zone文件
+（3）编辑zone文件，添加需要的信息
+（4）启动bind服务或使bind刷新配置
+（5）使用host或dig命令检测域信息是否正常
+
+注意：bind的所有配置语句后都需要以“；”分号结束。
+
+### 在bind的住配置文件中添加域linuxcast.net的定义：
+
+#配置文件位置:/var/named/chroot/etc/named/named.conf
+
+（1）在住配置文件中添加一行域的zone定义：
+
+zone "lizhentest.net"{
+	type master;
+	file "lizhentest.net.zone";
+};
+
+（2）创建zone配置文件：
+# zone文件位置：/var/named/chroot/var/named/lizhentest.net.zone
+
+# zone文件内容：zone文件内容比较复杂，手工输入极易输错，所以一般使用默认的named.localhost配置文件作为模板。
+cp named.localhost lizhentest.net.zone
+
+# 添加一个资源记录（RR）
+www	in	A	192.168.33.103
+
+## 配置完成后，重启bind dns服务
+server named start
+server named reload
+
+### 错误排查
+Bind 提供了2个语法检查工具：
+（1）named-checkconf 命令：查看bind主配置文件的错误；
+如：
+named-checkconf /var/named/chroot/etc/named.conf
+
+（2）named-checkzone 命令：查看zone配置文件的错误：
+named-checkzone lizhentest.net lizhentest.net.zone

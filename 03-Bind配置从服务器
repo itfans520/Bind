@@ -1,0 +1,26 @@
+###### 域从服务器
+
+一个域的从服务器（slave）同时是为了备份与负载均衡使用，所有这个域的信息都是由域的主服务器控制，域slave服务器启动时会从
+主服务器（master）上抓取制定域的zone配置文件，域slave服务器的配置步骤如下：
+
+（1）在从服务器bind的主配置文件中添加该域的定义；
+（2）启动从服务器bind服务或者使bind刷新配置即可；
+（3）查看域的zone文件是否正常抓取到/var/named/slaves目录中；
+（4）使用host或dig命令检测域信息是否正常。
+
+配置：
+#将主服务器的53监听设置为any
+
+#在从服务器上的/var/named/chroot/etc/named.conf文件中，将zone配置类型设置为slave，并制定主服务器的IP地址，示例如下：
+zone "lizhentest.net" {
+	type slave;
+	masters {192.168.33.109;};	# 注意：此处花括号内IP地址后也要有分号，而其实 masters，不是master；
+	file "slave/lizhentest.net.zone";
+};
+
+# 启动bind
+注意：
+（1）需要保证salve这个目录具有rw权限，最好通过chown 将slave目录设置为named用户及组拥有权限，如下：
+chown named /slave
+
+（2）在配置完成并启动bind后，需要去查看zone文件是否从主服务器同步过来了，需要关闭防火墙域selinux。
